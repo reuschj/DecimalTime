@@ -1,3 +1,3 @@
 # DecimalTime
 
-A description of this package.
+Coming soon... This package is currently a WIP.
