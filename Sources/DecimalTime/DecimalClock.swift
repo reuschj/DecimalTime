@@ -19,9 +19,10 @@ class DecimalClock {
     var date: Date { decimalTime.date }
     
     
-    init?(from: Date = Date(), with calendar: Calendar = Calendar.current, start: Bool = false, updatedEvery interval: TimeInterval = 1_000) {
+    init?(from date: Date = Date(), with calendar: Calendar = Calendar.current, start: Bool = false, updatedEvery interval: TimeInterval = 1_000) {
         self.calendar = calendar
-        self.decimalTime = DecimalTime(from: date, using: calendar) else { return nil }
+        guard let decimalTime = DecimalTime(from: date, using: calendar) else { return nil }
+        self.decimalTime = decimalTime
         if start {
             self.start(updatedEvery: interval)
         }
@@ -53,12 +54,12 @@ class DecimalClock {
         }
         timer?.invalidate()
         if #available(iOS 10.0, *), #available(OSX 10.12, *) {
-            timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true, block: { [weak self] timer in
+            timer = Timer.scheduledTimer(withTimeInterval: updateInterval, repeats: true, block: { [weak self] timer in
                 self?.updateTimer()
             })
         } else {
             // Fallback on earlier versions
-            timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(self.updateTimer), userInfo: nil, repeats: true)
+            timer = Timer.scheduledTimer(timeInterval: updateInterval, target: self, selector: #selector(self.updateTimer), userInfo: nil, repeats: true)
         }
     }
     
@@ -69,6 +70,6 @@ class DecimalClock {
     
     /// Updates the timer
     @objc private func updateTimer() {
-        self.refreshTime(from: Date(), using: calendar)
+        _ = self.refreshTime(from: Date(), using: calendar)
     }
 }

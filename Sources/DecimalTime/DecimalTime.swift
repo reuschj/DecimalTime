@@ -72,36 +72,36 @@ public struct DecimalTime: CustomStringConvertible {
         if !success { return nil }
     }
     
-    /**
-     Inits with a time interval (in standard seconds) since midnight
-     - Parameter timeInterval: The amount of seconds since midnight
-     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
-     */
-    public init(timeInterval: TimeInterval = 0.0, using calendar: Calendar = Calendar.current) throws {
-        // TODO
-    }
+//    /**
+//     Inits with a time interval (in standard seconds) since midnight
+//     - Parameter timeInterval: The amount of seconds since midnight
+//     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
+//     */
+//    public init(timeInterval: TimeInterval = 0.0, using calendar: Calendar = Calendar.current) throws {
+//        // TODO
+//    }
     
-    /**
-     Inits with time components
-     - Parameter hours: Amount of whole hours (since midnight)
-     - Parameter minutes: Amount of whole minutes (since last hour)
-     - Parameter seconds: Amount of whole seconds (since last minute)
-     - Parameter milliseconds: Amount of whole milliseconds (since last second)
-     - Parameter nanoseconds: Amount of whole nanoseconds (since last millisecond)
-     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
-     */
-    public init(hours: Int = 0, minutes: Int = 0, seconds: Int = 0, milliseconds: Int = 0, nanoseconds: Int = 0, using calendar: Calendar = Calendar.current) throws {
-        // TODO
-    }
+//    /**
+//     Inits with time components
+//     - Parameter hours: Amount of whole hours (since midnight)
+//     - Parameter minutes: Amount of whole minutes (since last hour)
+//     - Parameter seconds: Amount of whole seconds (since last minute)
+//     - Parameter milliseconds: Amount of whole milliseconds (since last second)
+//     - Parameter nanoseconds: Amount of whole nanoseconds (since last millisecond)
+//     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
+//     */
+//    public init(hours: Int = 0, minutes: Int = 0, seconds: Int = 0, milliseconds: Int = 0, nanoseconds: Int = 0, using calendar: Calendar = Calendar.current) throws {
+//        // TODO
+//    }
     
-    /**
-     Inits with the amount of hours since midnight
-     - Parameter hours: The amount of hours since midnight
-     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
-     */
-    public init(hours: Double = 0.0, using calendar: Calendar = Calendar.current) throws {
-        // TODO
-    }
+//    /**
+//     Inits with the amount of hours since midnight
+//     - Parameter hours: The amount of hours since midnight
+//     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
+//     */
+//    public init(hours: Double = 0.0, using calendar: Calendar = Calendar.current) throws {
+//        // TODO
+//    }
     
     // Methods ------------------------------------ //
     
