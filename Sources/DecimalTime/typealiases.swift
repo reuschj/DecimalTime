@@ -7,7 +7,17 @@
 
 import Foundation
 
+/// Decimal time components broken down to basic time components
 public typealias DecimalTimeComponents<Type> = (hours: Type, minutes: Type, seconds: Type, milliseconds: Type, nanoseconds: Type)
+
+/// Decimal time components with remainder (the fractional sum of all sub-components)
 public typealias DecimalTimeComponentsWithRemainder = DecimalTimeComponents<Double>
+
+/// Decimal time components with any remainder truncated to express only the amount of whole units
 public typealias WholeDecimalTimeComponents = DecimalTimeComponents<Int>
+
+/// The rotation values for decimal time components to use for clock hands
 public typealias DecimalTimeRotationComponents = DecimalTimeComponents<Double>
+
+/// A time interval expressed as the amount of decimal seconds
+public typealias DecimalTimeInterval = Double
