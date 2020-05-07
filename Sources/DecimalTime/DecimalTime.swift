@@ -34,6 +34,16 @@ public struct DecimalTime: CustomStringConvertible {
     
     // ------------------------- //
     
+    private var dateComponents: DateComponents { date.dateComponents([.year, .month, .weekOfYear, .day, .weekday], from: calendar) }
+    
+    public var year: Int? { dateComponents.year }
+    public var month: Int? { dateComponents.month }
+    public var weekOfYear: Int?  { dateComponents.weekOfYear }
+    public var day: Int?  { dateComponents.day }
+    public var weekday: Int?  { dateComponents.weekday }
+    
+    // ------------------------- //
+    
     private static let conversionRatio: Double = 0.864
     
     // Computed ------------------------------------ //
@@ -72,14 +82,28 @@ public struct DecimalTime: CustomStringConvertible {
         if !success { return nil }
     }
     
-//    /**
-//     Inits with a time interval (in standard seconds) since midnight
-//     - Parameter timeInterval: The amount of seconds since midnight
-//     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
-//     */
-//    public init(timeInterval: TimeInterval = 0.0, using calendar: Calendar = Calendar.current) throws {
-//        // TODO
-//    }
+    /**
+    Inits with a decimal time interval (in decimal seconds) since midnight
+    - Parameter timeInterval: The amount of seconds since midnight
+    - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
+    */
+    public init?(decimalTimeInterval: DecimalTimeInterval = 0.0, using calendar: Calendar = Calendar.current) {
+        let timeIntervalInStandardSeconds: TimeInterval = decimalTimeInterval * DecimalTime.conversionRatio
+        guard let midnight = Date.getMidnightOfCurrentDay(from: calendar) else { return nil }
+        let date = Date(timeInterval: timeIntervalInStandardSeconds, since: midnight)
+        self.init(from: date, using: calendar)
+    }
+    
+    /**
+     Inits with a time interval (in standard seconds) since midnight
+     - Parameter timeInterval: The amount of seconds since midnight
+     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
+     */
+    public init?(timeInterval: TimeInterval = 0.0, using calendar: Calendar = Calendar.current) {
+        guard let midnight = Date.getMidnightOfCurrentDay(from: calendar) else { return nil }
+        let date = Date(timeInterval: timeInterval, since: midnight)
+        self.init(from: date, using: calendar)
+    }
     
 //    /**
 //     Inits with time components
@@ -143,11 +167,21 @@ public struct DecimalTime: CustomStringConvertible {
     
     /**
      Static utility function to get the decimal time with a time interval (in standard seconds) since midnight
-     - Parameter sinceMidnight: A `Date` instance  to convert
+     - Parameter timeInterval: Time interval (in standard seconds) since midnight
      - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
      */
     public static func getDecimalTimeComponents(timeInterval: TimeInterval = 0.0, using calendar: Calendar = Calendar.current) throws -> (whole: WholeDecimalTimeComponents, withRemainder: DecimalTimeComponentsWithRemainder) {
         let decimalTimeIntervalSinceMidnight: Double = try checkRange(amount: timeInterval, range: 0..<86_400) / DecimalTime.conversionRatio
+        return try DecimalTime.getDecimalTimeComponents(decimalTimeInterval: decimalTimeIntervalSinceMidnight, using: calendar)
+    }
+    
+    /**
+     Static utility function to get the decimal time with a time interval (in decimal seconds) since midnight
+     - Parameter decimalTimeInterval: Time interval (in decimal seconds) since midnight
+     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
+     */
+    public static func getDecimalTimeComponents(decimalTimeInterval: DecimalTimeInterval = 0.0, using calendar: Calendar = Calendar.current) throws -> (whole: WholeDecimalTimeComponents, withRemainder: DecimalTimeComponentsWithRemainder) {
+        let decimalTimeIntervalSinceMidnight: Double = try checkRange(amount: decimalTimeInterval, range: 0..<100_000)
         let hoursWithRemainder = decimalTimeIntervalSinceMidnight / 100 / 100
         let hours = floor(hoursWithRemainder)
         let minutesWithRemainder: Double = (hours == 0 ? hoursWithRemainder : (hoursWithRemainder.truncatingRemainder(dividingBy: hours))) * 100

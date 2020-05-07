@@ -19,11 +19,17 @@ extension Date {
         DecimalTime(from: self, using: calendar)
     }
     
+    // Static function to get a date for midnight of the current day
+    static func getMidnightOfCurrentDay(from calendar: Calendar = Calendar.current) -> Date? {
+        let now = Date()
+        let dateComponents = now.dateComponents([.year, .month, .day, .timeZone])
+        return calendar.date(from: dateComponents)
+    }
+    
     // Calculates the time interval in seconds of the current time from midnight of the same day
     func timeIntervalSinceMidnight(from calendar: Calendar = Calendar.current) -> TimeInterval? {
         let now = Date()
-        let dateComponents = now.dateComponents([.year, .month, .day, .timeZone])
-        guard let midnight = calendar.date(from: dateComponents) else { return nil }
+        guard let midnight = Date.getMidnightOfCurrentDay(from: calendar) else { return nil }
         return now.timeIntervalSince(midnight)
     }
 }
