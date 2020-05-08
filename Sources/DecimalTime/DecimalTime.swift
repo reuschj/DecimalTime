@@ -84,14 +84,17 @@ public struct DecimalTime: CustomStringConvertible {
     
     /**
     Inits with a decimal time interval (in decimal seconds) since midnight
-    - Parameter timeInterval: The amount of seconds since midnight
+    - Parameter decimalTimeInterval: The amount of decimal seconds since midnight
     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
     */
-    public init?(decimalTimeInterval: DecimalTimeInterval = 0.0, using calendar: Calendar = Calendar.current) {
+    public init?(decimalTimeInterval: DecimalTimeInterval, using calendar: Calendar = Calendar.current) {
         let timeIntervalInStandardSeconds: TimeInterval = decimalTimeInterval * DecimalTime.conversionRatio
         guard let midnight = Date.getMidnightOfCurrentDay(from: calendar) else { return nil }
         let date = Date(timeInterval: timeIntervalInStandardSeconds, since: midnight)
-        self.init(from: date, using: calendar)
+        self.date = date
+        self.calendar = calendar
+        let (whole, withRemainder) = DecimalTime.getDecimalTimeComponents(decimalTimeInterval: decimalTimeInterval, using: calendar)
+        self.setTime(wholeComponents: whole, componentsWithRemainder: withRemainder)
     }
     
     /**
@@ -99,10 +102,13 @@ public struct DecimalTime: CustomStringConvertible {
      - Parameter timeInterval: The amount of seconds since midnight
      - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
      */
-    public init?(timeInterval: TimeInterval = 0.0, using calendar: Calendar = Calendar.current) {
+    public init?(timeInterval: TimeInterval, using calendar: Calendar = Calendar.current) {
         guard let midnight = Date.getMidnightOfCurrentDay(from: calendar) else { return nil }
         let date = Date(timeInterval: timeInterval, since: midnight)
-        self.init(from: date, using: calendar)
+        self.date = date
+        self.calendar = calendar
+        let (whole, withRemainder) = DecimalTime.getDecimalTimeComponents(timeInterval: timeInterval, using: calendar)
+        self.setTime(wholeComponents: whole, componentsWithRemainder: withRemainder)
     }
     
 //    /**
@@ -132,11 +138,18 @@ public struct DecimalTime: CustomStringConvertible {
     /**
      Sets the time from a `Date` instance
      - Parameter date: A `Date` instance  to convert
-     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
      */
-    public mutating func setTime(from date: Date = Date(), using calendar: Calendar = Calendar.current) -> Bool {
+    public mutating func setTime(from date: Date = Date()) -> Bool {
         guard let (whole, withRemainder) = DecimalTime.getDecimalTimeComponents(from: date, using: calendar) else { return false }
-        //
+        return self.setTime(wholeComponents: whole, componentsWithRemainder: withRemainder)
+    }
+    
+    /**
+     Sets the time from components
+     - Parameter whole: A tuple of whole date components (with remainder truncated)
+     - Parameter withRemainder: A tuple of  date components with remainders
+     */
+    mutating func setTime(wholeComponents whole: WholeDecimalTimeComponents, componentsWithRemainder withRemainder: DecimalTimeComponentsWithRemainder) -> Bool {
         let (hours, minutes, seconds, milliseconds, nanoseconds) = whole
         self.hours = hours
         self.minutes = minutes
