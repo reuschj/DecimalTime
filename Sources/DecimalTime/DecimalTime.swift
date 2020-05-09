@@ -10,7 +10,7 @@ import Foundation
 /**
  Holds a fixed decimal time
  */
-public struct DecimalTime: CustomStringConvertible {
+public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hashable {
     
     public private(set) var date: Date
     public private(set) var calendar: Calendar
@@ -31,6 +31,10 @@ public struct DecimalTime: CustomStringConvertible {
     //
     public private(set) var nanoseconds: Int = 0
     public private(set) var nanosecondsWithRemainder: Double = 0
+    
+    // ------------------------- //
+    
+    public var decimalTimeIntervalSinceMidnight: DecimalTimeInterval { secondsWithRemainder }
     
     // ------------------------- //
     
@@ -78,7 +82,7 @@ public struct DecimalTime: CustomStringConvertible {
     public init?(from date: Date = Date(), using calendar: Calendar = Calendar.current) {
         self.date = date
         self.calendar = calendar
-        let success = self.setTime(from: date, using: calendar)
+        let success = self.setTime(from: date)
         if !success { return nil }
     }
     
@@ -93,8 +97,8 @@ public struct DecimalTime: CustomStringConvertible {
         let date = Date(timeInterval: timeIntervalInStandardSeconds, since: midnight)
         self.date = date
         self.calendar = calendar
-        let (whole, withRemainder) = DecimalTime.getDecimalTimeComponents(decimalTimeInterval: decimalTimeInterval, using: calendar)
-        self.setTime(wholeComponents: whole, componentsWithRemainder: withRemainder)
+        guard let (whole, withRemainder) = try? DecimalTime.getDecimalTimeComponents(decimalTimeInterval: decimalTimeInterval, using: calendar) else { return nil }
+        _ = self.setTime(wholeComponents: whole, componentsWithRemainder: withRemainder)
     }
     
     /**
@@ -107,31 +111,36 @@ public struct DecimalTime: CustomStringConvertible {
         let date = Date(timeInterval: timeInterval, since: midnight)
         self.date = date
         self.calendar = calendar
-        let (whole, withRemainder) = DecimalTime.getDecimalTimeComponents(timeInterval: timeInterval, using: calendar)
-        self.setTime(wholeComponents: whole, componentsWithRemainder: withRemainder)
+        guard let (whole, withRemainder) = try? DecimalTime.getDecimalTimeComponents(timeInterval: timeInterval, using: calendar) else { return nil }
+        _ = self.setTime(wholeComponents: whole, componentsWithRemainder: withRemainder)
     }
     
-//    /**
-//     Inits with time components
-//     - Parameter hours: Amount of whole hours (since midnight)
-//     - Parameter minutes: Amount of whole minutes (since last hour)
-//     - Parameter seconds: Amount of whole seconds (since last minute)
-//     - Parameter milliseconds: Amount of whole milliseconds (since last second)
-//     - Parameter nanoseconds: Amount of whole nanoseconds (since last millisecond)
-//     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
-//     */
-//    public init(hours: Int = 0, minutes: Int = 0, seconds: Int = 0, milliseconds: Int = 0, nanoseconds: Int = 0, using calendar: Calendar = Calendar.current) throws {
-//        // TODO
-//    }
+    /**
+     Inits with time components
+     - Parameter hours: Amount of whole hours (since midnight)
+     - Parameter minutes: Amount of whole minutes (since last hour)
+     - Parameter seconds: Amount of whole seconds (since last minute)
+     - Parameter milliseconds: Amount of whole milliseconds (since last second)
+     - Parameter nanoseconds: Amount of whole nanoseconds (since last millisecond)
+     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
+     */
+    public init?(hours: Int = 0, minutes: Int = 0, seconds: Int = 0, milliseconds: Int = 0, nanoseconds: Int = 0, using calendar: Calendar = Calendar.current) {
+        let decimalMS: Double = (Double(nanoseconds) / 1_000_000) + Double(milliseconds)
+        let decimalSeconds: Double = (decimalMS / 1_000) + Double(seconds)
+        let decimalMinutes: Double = (decimalSeconds / 100) + Double(minutes)
+        let decimalHours: Double = (decimalMinutes / 100) + Double(hours)
+        self.init(hours: decimalHours, using: calendar)
+    }
     
-//    /**
-//     Inits with the amount of hours since midnight
-//     - Parameter hours: The amount of hours since midnight
-//     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
-//     */
-//    public init(hours: Double = 0.0, using calendar: Calendar = Calendar.current) throws {
-//        // TODO
-//    }
+    /**
+     Inits with the amount of decimal hours since midnight
+     - Parameter hours: The amount of decimal hours since midnight
+     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
+     */
+    public init?(hours: Double = 0.0, using calendar: Calendar = Calendar.current) {
+        let decimalTimeInterval: DecimalTimeInterval = hours * 100 * 100
+        self.init(decimalTimeInterval: decimalTimeInterval, using: calendar)
+    }
     
     // Methods ------------------------------------ //
     
@@ -164,6 +173,20 @@ public struct DecimalTime: CustomStringConvertible {
         self.millisecondsWithRemainder = millisecondsWithRemainder
         self.nanosecondsWithRemainder = nanosecondsWithRemainder
         return true
+    }
+    
+    // Comparison ------------------------------------ //
+    
+    public static func == (lhs: DecimalTime, rhs: DecimalTime) -> Bool { lhs.date == rhs.date }
+    
+    public static func < (lhs: DecimalTime, rhs: DecimalTime) -> Bool { lhs.date < rhs.date }
+    
+    // Hashable ------------------------------------ //
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(secondsWithRemainder)
+        hasher.combine(day)
+        hasher.combine(year)
     }
     
     // Static ------------------------------------ //

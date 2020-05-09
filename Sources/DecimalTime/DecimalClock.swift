@@ -38,8 +38,8 @@ class DecimalClock {
         self.running = false
     }
     
-    func refreshTime(from date: Date = Date(), using calendar: Calendar = Calendar.current) -> Bool {
-        self.decimalTime.setTime(from: date, using: calendar)
+    func refreshTime(from date: Date = Date()) -> Bool {
+        self.decimalTime.setTime(from: date)
     }
     
     // Timer methods ------------------------------------ //
@@ -70,6 +70,6 @@ class DecimalClock {
     
     /// Updates the timer
     @objc private func updateTimer() {
-        _ = self.refreshTime(from: Date(), using: calendar)
+        _ = self.refreshTime(from: Date())
     }
 }
