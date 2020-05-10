@@ -48,7 +48,8 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
     
     // ------------------------- //
     
-    private static let conversionRatio: Double = 0.864
+    static let conversionRatio: Double = 0.864
+    static let decimalSecond: TimeInterval = 1 / DecimalTime.conversionRatio
     
     // Computed ------------------------------------ //
     
@@ -92,7 +93,7 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
     - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
     */
     public init?(decimalTimeInterval: DecimalTimeInterval, using calendar: Calendar = Calendar.current) {
-        let timeIntervalInStandardSeconds: TimeInterval = decimalTimeInterval * DecimalTime.conversionRatio
+        let timeIntervalInStandardSeconds: TimeInterval = decimalTimeInterval.timeInterval
         guard let midnight = Date.getMidnightOfCurrentDay(from: calendar) else { return nil }
         let date = Date(timeInterval: timeIntervalInStandardSeconds, since: midnight)
         self.date = date
@@ -124,12 +125,12 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
      - Parameter nanoseconds: Amount of whole nanoseconds (since last millisecond)
      - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
      */
-    public init?(hours: Int = 0, minutes: Int = 0, seconds: Int = 0, milliseconds: Int = 0, nanoseconds: Int = 0, using calendar: Calendar = Calendar.current) {
-        let decimalMS: Double = (Double(nanoseconds) / 1_000_000) + Double(milliseconds)
-        let decimalSeconds: Double = (decimalMS / 1_000) + Double(seconds)
+    public init?(hours: Int, minutes: Int = 0, seconds: Int = 0, milliseconds: Int = 0, nanoseconds: Int = 0, using calendar: Calendar = Calendar.current) {
+        let decimalMS: Double = Double(milliseconds) + (Double(nanoseconds) / 1_000_000)
+        let decimalSeconds: Double = Double(seconds) + (decimalMS / 1_000)
         let decimalMinutes: Double = (decimalSeconds / 100) + Double(minutes)
         let decimalHours: Double = (decimalMinutes / 100) + Double(hours)
-        self.init(hours: decimalHours, using: calendar)
+        self.init(hourInterval: decimalHours, using: calendar)
     }
     
     /**
@@ -137,7 +138,7 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
      - Parameter hours: The amount of decimal hours since midnight
      - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
      */
-    public init?(hours: Double = 0.0, using calendar: Calendar = Calendar.current) {
+    public init?(hourInterval hours: Double, using calendar: Calendar = Calendar.current) {
         let decimalTimeInterval: DecimalTimeInterval = hours * 100 * 100
         self.init(decimalTimeInterval: decimalTimeInterval, using: calendar)
     }
@@ -181,6 +182,18 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
     
     public static func < (lhs: DecimalTime, rhs: DecimalTime) -> Bool { lhs.date < rhs.date }
     
+    // Computation ------------------------------------ //
+    
+    public static func + (decimalTime: DecimalTime, interval: DecimalTimeInterval) -> DecimalTime {
+        let newDate = decimalTime.date + interval.timeInterval
+        return DecimalTime(from: newDate, using: decimalTime.calendar) ?? decimalTime
+    }
+    
+    public static func - (decimalTime: DecimalTime, interval: DecimalTimeInterval) -> DecimalTime {
+        let newDate = decimalTime.date - interval.timeInterval
+        return DecimalTime(from: newDate, using: decimalTime.calendar) ?? decimalTime
+    }
+    
     // Hashable ------------------------------------ //
     
     public func hash(into hasher: inout Hasher) {
@@ -206,8 +219,8 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
      - Parameter timeInterval: Time interval (in standard seconds) since midnight
      - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
      */
-    public static func getDecimalTimeComponents(timeInterval: TimeInterval = 0.0, using calendar: Calendar = Calendar.current) throws -> (whole: WholeDecimalTimeComponents, withRemainder: DecimalTimeComponentsWithRemainder) {
-        let decimalTimeIntervalSinceMidnight: Double = try checkRange(amount: timeInterval, range: 0..<86_400) / DecimalTime.conversionRatio
+    public static func getDecimalTimeComponents(timeInterval: TimeInterval, using calendar: Calendar = Calendar.current) throws -> (whole: WholeDecimalTimeComponents, withRemainder: DecimalTimeComponentsWithRemainder) {
+        let decimalTimeIntervalSinceMidnight: Double = try checkRange(amount: timeInterval, range: 0..<86_400).decimalTimeInterval
         return try DecimalTime.getDecimalTimeComponents(decimalTimeInterval: decimalTimeIntervalSinceMidnight, using: calendar)
     }
     
@@ -216,7 +229,7 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
      - Parameter decimalTimeInterval: Time interval (in decimal seconds) since midnight
      - Parameter calendar: The `Calendar` to use - Defaults to current user calendar
      */
-    public static func getDecimalTimeComponents(decimalTimeInterval: DecimalTimeInterval = 0.0, using calendar: Calendar = Calendar.current) throws -> (whole: WholeDecimalTimeComponents, withRemainder: DecimalTimeComponentsWithRemainder) {
+    public static func getDecimalTimeComponents(decimalTimeInterval: DecimalTimeInterval, using calendar: Calendar = Calendar.current) throws -> (whole: WholeDecimalTimeComponents, withRemainder: DecimalTimeComponentsWithRemainder) {
         let decimalTimeIntervalSinceMidnight: Double = try checkRange(amount: decimalTimeInterval, range: 0..<100_000)
         let hoursWithRemainder = decimalTimeIntervalSinceMidnight / 100 / 100
         let hours = floor(hoursWithRemainder)

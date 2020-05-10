@@ -10,8 +10,10 @@ import Foundation
 class DecimalClock {
     private(set) var decimalTime: DecimalTime
     private(set) var running: Bool = false
-    private(set) var updateInterval: TimeInterval = 1000
+    private(set) var updateInterval: TimeInterval = DecimalClock.decimalSecond
     private(set) var calendar: Calendar
+    
+    static let decimalSecond: TimeInterval = DecimalTime.decimalSecond
     
     /// The timer which will drive any updates
     private var timer: Timer?
