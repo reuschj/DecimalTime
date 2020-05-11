@@ -6,6 +6,26 @@
 	<dict>
 		<key>DecimalTimeTests</key>
 		<dict>
+			<key>testReverse()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.00012691</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Local Baseline</string>
+				</dict>
+			</dict>
+			<key>testReverse2()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>8.1781e-05</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Local Baseline</string>
+				</dict>
+			</dict>
 			<key>testThatComparisonWorks()</key>
 			<dict>
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>

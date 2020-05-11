@@ -7,21 +7,32 @@
 
 import Foundation
 
-class DecimalClock {
+/**
+ A decimal time clock that updates itself at regular intervals
+ */
+public class DecimalClock {
+    
     private(set) var decimalTime: DecimalTime
     private(set) var running: Bool = false
     private(set) var updateInterval: TimeInterval = DecimalClock.decimalSecond
     private(set) var calendar: Calendar
     
-    static let decimalSecond: TimeInterval = DecimalTime.decimalSecond
+    // ------------------------- //
     
     /// The timer which will drive any updates
     private var timer: Timer?
     
+    static let decimalSecond: TimeInterval = DecimalTime.decimalSecond
+    
+    // ------------------------- //
+    
+    // Computed ------------------------------------ //
+    
     var date: Date { decimalTime.date }
     
+    // Initializers ------------------------------------ //
     
-    init?(from date: Date = Date(), with calendar: Calendar = Calendar.current, start: Bool = false, updatedEvery interval: TimeInterval = 1_000) {
+    init?(from date: Date = Date(), with calendar: Calendar = Calendar.current, start: Bool = false, updatedEvery interval: TimeInterval = DecimalClock.decimalSecond) {
         self.calendar = calendar
         guard let decimalTime = DecimalTime(from: date, using: calendar) else { return nil }
         self.decimalTime = decimalTime
@@ -29,6 +40,8 @@ class DecimalClock {
             self.start(updatedEvery: interval)
         }
     }
+    
+    // Methods ------------------------------------ //
     
     func start(updatedEvery interval: TimeInterval? = nil) {
         self.startTimer(updatedEvery: interval)
