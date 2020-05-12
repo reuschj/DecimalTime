@@ -48,8 +48,8 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
     
     // ------------------------- //
     
-    static let conversionRatio: Double = 0.864
-    static let decimalSecond: TimeInterval = 1.timeInterval
+    public static let conversionRatio: Double = 0.864
+    public static let decimalSecond: TimeInterval = 1.timeInterval
     
     // Computed ------------------------------------ //
     

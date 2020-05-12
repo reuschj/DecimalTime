@@ -31,7 +31,7 @@ public class DecimalClock {
     
     // Static -------------------- //
     
-    static let decimalSecond: TimeInterval = DecimalTime.decimalSecond
+    public static let decimalSecond: TimeInterval = DecimalTime.decimalSecond
     
     // Computed ------------------------------------ //
     
