@@ -49,7 +49,7 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
     // ------------------------- //
     
     static let conversionRatio: Double = 0.864
-    static let decimalSecond: TimeInterval = 1 / DecimalTime.conversionRatio
+    static let decimalSecond: TimeInterval = 1.timeInterval
     
     // Computed ------------------------------------ //
     
@@ -178,18 +178,18 @@ public struct DecimalTime: CustomStringConvertible, Comparable, Equatable, Hasha
     
     // Comparison ------------------------------------ //
     
-    public static func == (lhs: DecimalTime, rhs: DecimalTime) -> Bool { lhs.date == rhs.date }
+    public static func ==(lhs: DecimalTime, rhs: DecimalTime) -> Bool { lhs.date == rhs.date }
     
-    public static func < (lhs: DecimalTime, rhs: DecimalTime) -> Bool { lhs.date < rhs.date }
+    public static func <(lhs: DecimalTime, rhs: DecimalTime) -> Bool { lhs.date < rhs.date }
     
     // Computation ------------------------------------ //
     
-    public static func + (decimalTime: DecimalTime, interval: DecimalTimeInterval) -> DecimalTime {
+    public static func +(decimalTime: DecimalTime, interval: DecimalTimeInterval) -> DecimalTime {
         let newDate = decimalTime.date + interval.timeInterval
         return DecimalTime(from: newDate, using: decimalTime.calendar) ?? decimalTime
     }
     
-    public static func - (decimalTime: DecimalTime, interval: DecimalTimeInterval) -> DecimalTime {
+    public static func -(decimalTime: DecimalTime, interval: DecimalTimeInterval) -> DecimalTime {
         let newDate = decimalTime.date - interval.timeInterval
         return DecimalTime(from: newDate, using: decimalTime.calendar) ?? decimalTime
     }

@@ -8,13 +8,13 @@ let timeIntervalSinceMidnight: TimeInterval = now.timeIntervalSinceMidnight(from
 let decimalTimeIntervalSinceMidnight: DecimalTimeInterval = timeIntervalSinceMidnight.decimalTimeInterval
 let decimalHours: Double = decimalTimeIntervalSinceMidnight.hours
 let hours: Double = floor(decimalHours)
-let minutesWithRemainder: Double = decimalHours.truncatingRemainder(dividingBy: hours) * 100
+let minutesWithRemainder: Double = (hours == 0 ? decimalHours : decimalHours.truncatingRemainder(dividingBy: hours)) * 100
 let minutes: Double = floor(minutesWithRemainder)
-let secondsWithRemainder: Double = minutesWithRemainder.truncatingRemainder(dividingBy: minutes) * 100
+let secondsWithRemainder: Double = (minutes == 0 ? minutesWithRemainder : minutesWithRemainder.truncatingRemainder(dividingBy: minutes)) * 100
 let seconds: Double = floor(secondsWithRemainder)
-let millisecondsWithRemainder: Double = secondsWithRemainder.truncatingRemainder(dividingBy: seconds) * 1_000
+let millisecondsWithRemainder: Double = (seconds == 0 ? secondsWithRemainder : secondsWithRemainder.truncatingRemainder(dividingBy: seconds)) * 1_000
 let milliseconds: Double = floor(millisecondsWithRemainder)
-let nanosecondsWithRemainder: Double = millisecondsWithRemainder.truncatingRemainder(dividingBy: milliseconds) * 1_000_000
+let nanosecondsWithRemainder: Double = (milliseconds == 0 ? millisecondsWithRemainder : millisecondsWithRemainder.truncatingRemainder(dividingBy: milliseconds)) * 1_000_000
 let nanoseconds: Double = floor(nanosecondsWithRemainder)
 
 final class DecimalTimeTests: XCTestCase {
@@ -59,7 +59,34 @@ final class DecimalTimeTests: XCTestCase {
         let time04 = time01 + 10_000
         XCTAssertTrue((time01.hours + 1 == time04.hours) || (time04.hours == 0))
         let time05 = time01 - 10_000
-        XCTAssertTrue((time01.hours - 1 == time05.hours) || (time04.hours == 9))
+        XCTAssertTrue((time01.hours - 1 == time05.hours) || (time05.hours == 9))
+    }
+    
+    @available(OSX 10.12, *)
+    func testThatClockWorks() {
+        let expectation = XCTestExpectation()
+        let max: Int = 10
+        let clock = DecimalClock(from: Date(), with: Calendar.current, start: false, updatedEvery: 1)!
+        XCTAssertEqual(clock.running, false)
+        clock.start()
+        XCTAssertEqual(clock.running, true)
+        let initialSeconds = clock.decimalTime.seconds
+        var counter = 0
+        _ = Timer.scheduledTimer(withTimeInterval: DecimalTime.decimalSecond, repeats: true) { timer in
+            counter += 1
+            print(counter, clock.decimalTime)
+            let actualSeconds = clock.decimalTime.seconds
+            let withCounter = initialSeconds + counter
+            let expectedSeconds: Int = withCounter < 100 ? withCounter : withCounter - 100
+            XCTAssertEqual(actualSeconds, expectedSeconds)
+            if counter == max {
+                timer.invalidate()
+                expectation.fulfill()
+                clock.stop()
+                XCTAssertEqual(clock.running, false)
+            }
+        }
+        wait(for: [expectation], timeout: (Double(max) + 1).decimalTimeInterval)
     }
 
     static var allTests = [
