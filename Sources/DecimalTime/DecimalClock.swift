@@ -101,7 +101,9 @@ public class DecimalClock {
             self.updateInterval = interval
         }
         timer?.invalidate()
-        if #available(iOS 10.0, *), #available(OSX 10.12, *) {
+        if #available(iOS 10.0, *),
+           #available(OSX 10.12, *),
+           #available(watchOS 3.0, *) {
             timer = Timer.scheduledTimer(withTimeInterval: updateInterval.timeInterval, repeats: true) { [weak self] timer in
                 self?.updateTimer()
             }
